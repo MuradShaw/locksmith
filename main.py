@@ -1,6 +1,6 @@
 from LockSmith import LockSmith
 from MySQLHandler import MySQLHandler
-from colorama import Fore, Back, Style
+from colorama import Fore
 
 # Continuously check for a key insert/disconnect and proceed accordingly
 if __name__ == '__main__':

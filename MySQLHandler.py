@@ -16,12 +16,14 @@ class MySQLHandler:
 
     def connect_db(self, host, user, password):
         """
-            Connect to DB
+            Select and Connect to DB
         """
+
         self.keydb = mysql.connector.connect(
             host=host,
             user=user,
-            password=password
+            password=password,
+            database="keyboard"
         )
 
         self.cursor = self.keydb.cursor()

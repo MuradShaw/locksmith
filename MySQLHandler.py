@@ -2,7 +2,7 @@ import mysql.connector
 
 """
     Subject to change:
-    [0 UserID | 1 Username | 2 Password | 3 Email | 4 Username_HTML_Field | 5 Password_HTML_Field | 6 Email_HTML_Field | 7 URL ]
+    user_site_info: [0 UserID | 1 Username | 2 Password | 3 Email | 4 Username_HTML_Field | 5 Password_HTML_Field | 6 Email_HTML_Field | 7 URL ]
 """
 
 class MySQLHandler:

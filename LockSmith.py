@@ -9,6 +9,7 @@ from MySQLHandler import MySQLHandler
 import time
 import pyperclip
 
+
 class LockSmith:
     def __init__(self):
         self.keydir = "C:/Users/annar/OneDrive/Desktop/Key"  # Directory for our key storage
@@ -17,6 +18,11 @@ class LockSmith:
         self.mysql_handler = MySQLHandler()  # Initiate MySQLHandler as mysql_handler
         self.driver = webdriver.Chrome()  # Initiate chrome driver as driver
 
+        p = "@shawww_428490"
+        self.oursql = MySQLHandler()
+
+        # Connect to our database
+        #self.oursql.connect_db("localhost", "key_user", p)
 
     def directory_exists(self, directory):
         """
@@ -29,14 +35,13 @@ class LockSmith:
         else:
             return False
 
-
     def key_inserted(self):
         """
             Take our data file from our key directory and
             print its contents.
         """
 
-        print(Fore.YELLOW + "Success | Key Inserted > Main.py")
+        print(Fore.YELLOW + "Success | Key Inserted > LockSmith.py")
 
         # Get our data as a HTML insertable string format
         with open("C:/Users/annar/OneDrive/Desktop/Key/data.txt") as f:
@@ -46,7 +51,6 @@ class LockSmith:
 
         # Insert in our webpage
         self.set_data_and_go(key_data)
-
 
     def set_data_and_go(self, field_data):
         """
@@ -61,42 +65,60 @@ class LockSmith:
         # TODO: Dynamically get URL
         url = 'https://www.linkedin.com/home'
         self.driver.get(url)
-
+        return
         print(Fore.BLACK + f"Reaching {url}... > Main.py")
 
-        # Wait before proceeding
-        time.sleep(2)
-
         try:
-            # Dynamically get element ID
-            element = self.driver.switch_to.active_element
+            # See if we have a saved HTML ID for the password field in our database linked to our user and site
+            result = self.oursql.select_db("Password_HTML_Field", "user_site_info", "UserID", "1")
+            print(Fore.CYAN + f"SQL | {result[0][0]} > LockSmith.py")
 
-            # Retrieve the HTML ID of the selected element
-            element_id = element.get_attribute("id")
+            # There is a saved HTML ID for the password field
+            if result[0][0] is not None:
+                element_id = result[0][0]  # Get the HTML ID
+                self.insert_data_on_page(element_id, field_data)
 
-            # Nothing was selected/some other error
-            if not element_id:
-                # Copy to the clipboard instead
-                pyperclip.copy(field_data)
-                print(Fore.YELLOW + "Warning | Field not found, copying data to clipboard instead > Main.py")
+                print(Fore.BLACK + f"Locating element {result[0][0]}... > LockSmith.py")
 
-                return
+            else:
+                print(
+                    Fore.YELLOW + "Warning | No HTML ID found, select password field using mouse click > LockSmith.py"
+                )
 
-            # Get our element via ID
-            input_field = self.driver.find_element(By.ID, element_id)
+                # Wait before proceeding
+                time.sleep(2)
 
-            print(Fore.BLACK + f"Locating element {element_id}... > Main.py")
+                # Dynamically get element ID
+                element = self.driver.switch_to.active_element
+
+                # Retrieve the HTML ID of the selected element
+                element_id = element.get_attribute("id")
+
+                # Nothing was selected/some other error
+                if not element_id:
+                    # Copy to the clipboard instead
+                    pyperclip.copy(field_data)
+                    print(Fore.YELLOW + "Warning | Field not found, copying data to clipboard instead > LockSmith.py")
+
+                    return
+
+                self.insert_data_on_page(element_id, field_data)
+
+                print(Fore.BLACK + f"Locating element {element_id}... > LockSmith.py")
 
         except Exception as e:
-            print(Fore.RED + f"Failure | Cannot find HTML element-id, returning... > Main.py")
+            print(Fore.RED + f"Failure | Cannot find HTML element-id, returning... > LockSmith.py")
             print(e)
             return
 
+    def insert_data_on_page(self, element_id, field_data):
+        # Get our element via ID
+        input_field = self.driver.find_element(By.ID, element_id)
         data_to_fill = field_data  # This line literally makes no sense
         input_field.send_keys(data_to_fill)  # Fill in HTML element with data
 
-        print(Fore.BLACK + f"Inserting Data {data_to_fill}... > Main.py")
+        print(Fore.BLACK + f"Inserting Data {data_to_fill}... > LockSmith.py")
 
         pyautogui.press('enter')  # Digitally hit "enter" submitting our request
 
-        print(Fore.BLACK + "Go! > Main.py")
+        print(Fore.BLACK + "Go! > LockSmith.py")
